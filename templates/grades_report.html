@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Отчёт оценок{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-center" style="color: #fff;">📈 График оценок</h2>
+    <div class="card shadow-lg rounded-4 p-4">
+        <h5 class="mb-3 text-center">📊 {{ period_text if period_text else 'График за всё время' }}</h5>
+        
+        <!-- Форма фильтрации по датам -->
+        <form method="POST" class="mb-4" id="filter-form">
+            <div class="row">
+                <div class="col-12 col-md-5 mb-2">
+                    <label for="start_date" class="form-label">От:</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date }}">
+                </div>
+                <div class="col-12 col-md-5 mb-2">
+                    <label for="end_date" class="form-label">До:</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date }}">
+                </div>
+                <div class="col-12 col-md-2 d-flex justify-content-center align-items-end mb-2">
+                    <button type="submit" class="btn btn-custom w-48 me-2">Применить фильтр</button>
+                    <button type="button" class="btn btn-custom w-48" onclick="resetChart()">Сбросить фильтр</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="chart-container mb-4" style="width: 100%; height: 450px; overflow-x: auto;">
+            <canvas id="gradesChart"></canvas>
+        </div>
+
+        <!-- Информация о графике -->
+        <div class="mt-4">
+            <h5 class="text-center">Информация по графику</h5>
+            <p class="mt-3 text-center">Здесь отображена средняя оценка по каждому предмету</p>
+            <ul class="list-group">
+                {% if subject_averages %}
+                    {% for subject, avg in subject_averages.items() %}
+                        <li class="list-group-item">
+                            <strong>{{ subject }}:</strong> Средняя оценка - {{ avg }} 
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">Нет доступных данных для отображения.</li>
+                {% endif %}
+            </ul>
+            
+        </div>
+
+        <!-- Кнопка PDF -->
+        <div class="text-center mt-3">
+            <button class="btn btn-custom" id="download-pdf">Экспортировать PDF</button>
+        </div>
+    </div>
+</div>
+
+<!-- Передача данных через JSON -->
+<script id="subject-data" type="application/json">
+    {{ subject_averages | tojson }}
+</script>
+
+<!-- Подключение библиотек -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+<script>
+    // Получение и разбор данных
+    const rawData = JSON.parse(document.getElementById('subject-data').textContent);
+    const subjects = Object.keys(rawData);
+    const averages = Object.values(rawData);
+
+    // График
+    const ctx = document.getElementById('gradesChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: 'Средняя оценка',
+                data: averages,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1
+                    },
+                    title: {
+                        display: true,
+                        text: 'Оценка'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        
+                    }
+                }
+            }
+        }
+    });
+
+    // Сброс фильтра
+    function resetChart() {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+        document.getElementById('filter-form').submit();
+    }
+
+    // Экспорт в PDF
+    document.getElementById('download-pdf').addEventListener('click', function() {
+        html2canvas(document.querySelector('.container')).then(canvas => {
+            if (!canvas) {
+                alert('Не удалось захватить содержимое для экспорта в PDF.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', 10, 10, 180, 90);
+
+            doc.setFontSize(12);
+            doc.text('Информация по графику:', 10, 110);
+            let yOffset = 120;
+            for (const [subject, avg] of Object.entries(rawData)) {
+                doc.text(`${subject}: Средняя оценка - ${avg}`, 10, yOffset);
+                yOffset += 10;
+            }
+
+            doc.save('grades_report.pdf');
+        }).catch(err => {
+            console.error('Ошибка при захвате содержимого:', err);
+            alert('Произошла ошибка при попытке экспортировать в PDF.');
+        });
+    });
+</script>
+{% endblock %}

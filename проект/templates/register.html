@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 Регистрация</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #6a11cb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        .card {
+            width: 400px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: black;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        .illustration img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        .form-control, .form-select {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            width: 100%;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background: #ddd;
+        }
+
+        /* Темная тема */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: white;
+        }
+        .dark-mode .card {
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+        }
+        .dark-mode h2 {
+            color: #a29bfe;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        .dark-mode .form-control:focus, .dark-mode .form-select:focus {
+            border-color: #a29bfe;
+            box-shadow: 0 0 10px rgba(162, 155, 254, 0.4);
+        }
+        .dark-mode .btn-custom {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+        .dark-mode .btn-custom:hover {
+            background: linear-gradient(135deg, #6c5ce7, #4b4b9e);
+        }
+        .dark-mode .theme-toggle {
+            background: #222;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<div class="card">
+    <div class="illustration">
+        <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Register">
+    </div>
+    <h2>📝 Регистрация</h2>
+    <form method="POST">
+        <input type="text" name="username" class="form-control" placeholder="👤 Имя пользователя" required>
+        <input type="password" name="password" class="form-control" placeholder="🔒 Пароль" required>
+        <input type="text" name="phone" class="form-control" placeholder="📱 Номер телефона" required pattern="^\+?[0-9]{10,15}$" title="Введите корректный номер телефона">
+
+        <label class="form-label">Выберите роль:</label>
+        <select name="role" class="form-select" id="roleSelect">
+            <option value="parent">👪 Родитель</option>
+            <option value="student">🎓 Ученик</option>
+            <option value="teacher">📚 Учитель</option>
+            <option value="admin">⚙️ Администратор</option>
+        </select>
+
+        <!-- Для ученика: выбор класса -->
+        <div id="classField" style="display: none;">
+            <label class="form-label">Выберите класс:</label>
+            <select name="class_id" class="form-select" id="classSelect">
+                <option value="">Выберите класс</option>
+                {% for class in classes %}
+                    <option value="{{ class.id }}">{{ class.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Для учителя: выбор предмета -->
+        <div id="subjectField" style="display: none;">
+            <label class="form-label">Выберите предмет:</label>
+            <select name="subject" class="form-select" id="subjectSelect">
+                <option value="">Выберите предмет</option>
+                <option value="Математика">Математика</option>
+                <option value="Русский язык">Русский язык</option>
+                <option value="Физика">Физика</option>
+                <option value="Химия">Химия</option>
+                <option value="Биология">Биология</option>
+                <option value="История">История</option>
+                <option value="География">География</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-custom">Зарегистрироваться</button>
+    </form>
+    <p class="text-center mt-3">
+        Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a>
+    </p>
+</div>
+
+<script>
+    // Переключение темы
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    function applyTheme(theme) {
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeToggle.textContent = "☀️";
+        } else {
+            body.classList.remove("dark-mode");
+            themeToggle.textContent = "🌙";
+        }
+    }
+
+    themeToggle.addEventListener("click", function() {
+        let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+        localStorage.setItem("theme", currentTheme);
+        applyTheme(currentTheme);
+    });
+
+    applyTheme(localStorage.getItem("theme") || "light");
+
+    // Показывать или скрывать выбор класса и предмета в зависимости от роли
+    const roleSelect = document.getElementById("roleSelect");
+    const classField = document.getElementById("classField");
+    const subjectField = document.getElementById("subjectField");
+
+    function toggleRoleFields() {
+        const role = roleSelect.value;
+        if (role === "student") {
+            classField.style.display = "block";
+            subjectField.style.display = "none";
+        } else if (role === "teacher") {
+            classField.style.display = "none";
+            subjectField.style.display = "block";
+        } else {
+            classField.style.display = "none";
+            subjectField.style.display = "none";
+        }
+    }
+
+    roleSelect.addEventListener("change", toggleRoleFields);
+    toggleRoleFields();
+</script>
+
+</body>
+</html>

@@ -283,7 +283,7 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
       {% endif %}
       {% if current_user.role == 'admin' %}
           <!-- Кнопка для открытия модального окна удаления пользователя -->
-          <li><a href="#" data-bs-toggle="modal" data-bs-target="#delete_user">➕ Удалить пользователя</a></li>
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#deleteChildModal">➕ Удалить пользователя</a></li>
       {% endif %}
       {% if current_user.role == 'parent' %}
           <!-- Кнопка для открытия модального окна привязки ребёнка -->

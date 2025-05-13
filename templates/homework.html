@@ -175,11 +175,11 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
 });
 </script>
 
-<div class="table-responsive">
+<div class="wrapper">
     <div class="container">
         <h1 class="mb-4">📅 Домашнее задание</h1>
 
-            <!-- Форма выбора даты -->
+        <!-- Форма выбора даты -->
         <form method="GET" action="{{ url_for('homework') }}" class="mb-3">
             <label for="homework_date" class="form-label">📅 Выберите дату:</label>
             <input type="date" name="date" value="{{ selected_date }}" class="form-control" onchange="this.form.submit()">
@@ -189,36 +189,38 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
 
         <!-- Показываем таблицу только для студентов и учителей -->
         {% if is_teacher or current_user.role == 'student' %}
-        <table class="table table-bordered table-striped mt-3">
-            <thead>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>🏫 Класс</th>
+                        <th>📚 Предмет</th>
+                        <th>📝 Описание</th>
+                        <th>📅 Дата сдачи</th>
+                        {% if is_teacher %}<th>⚙️ Действия</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for hw in homeworks %}
                 <tr>
-                    <th>🏫 Класс</th>
-                    <th>📚 Предмет</th>
-                    <th>📝 Описание</th>
-                    <th>📅 Дата сдачи</th>
-                    {% if is_teacher %}<th>⚙️ Действия</th>{% endif %}
+                    <td>{{ hw.school_class.name }}</td>
+                    <td>{{ hw.subject }}</td>
+                    <td>{{ hw.description }}</td>
+                    <td>{{ hw.due_date.strftime('%d.%m.%Y') }}</td>
+                    {% if is_teacher %}
+                    <td>
+                        <form method="POST" action="{{ url_for('homework') }}">
+                            <input type="hidden" name="homework_id" value="{{ hw.id }}">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </td>
+                    {% endif %}
                 </tr>
-            </thead>
-            <tbody>
-            {% for hw in homeworks %}
-            <tr>
-                <td>{{ hw.school_class.name }}</td>
-                <td>{{ hw.subject }}</td>
-                <td>{{ hw.description }}</td>
-                <td>{{ hw.due_date.strftime('%d.%m.%Y') }}</td>
-                {% if is_teacher %}
-                <td>
-                    <form method="POST" action="{{ url_for('homework') }}">
-                        <input type="hidden" name="homework_id" value="{{ hw.id }}">
-                        <input type="hidden" name="action" value="delete">
-                        <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
-                    </form>
-                </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% endif %}
 
         <!-- Показываем форму добавления домашнего задания только для учителей -->
@@ -261,6 +263,7 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
         <a href="{{ url_for('dashboard') }}" class="btn btn-custom mt-3">⬅️ Назад</a>
     </div>
 </div>
+
 
 <script>
     // Переключение темы

@@ -197,18 +197,20 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
 });
 </script>
 
-<div class="table-responsive">
-    <div class="container">
-        <h1 class="mb-4">📊 Оценки</h1>
+<div class="container">
+    <h1 class="mb-4">📊 Оценки</h1>
 
-        <!-- Форма выбора даты -->
-        <form method="GET" action="{{ url_for('grades') }}" class="mb-3">
-            <label for="date" class="form-label">📅 Выберите дату:</label>
-            <input type="date" name="date" value="{{ selected_date }}" class="form-control" onchange="this.form.submit()">
-        </form>
+    <!-- Форма выбора даты -->
+    <form method="GET" action="{{ url_for('grades') }}" class="mb-3">
+        <label for="date" class="form-label">📅 Выберите дату:</label>
+        <input type="date" name="date" value="{{ selected_date }}" class="form-control" onchange="this.form.submit()">
+    </form>
 
-        <h3 class="mt-4">Оценки на {{ selected_date }}</h3>
-        <table class="table mt-3">
+    <h3 class="mt-4">Оценки на {{ selected_date }}</h3>
+
+    <!-- ✅ Обёртка только для таблицы -->
+    <div class="table-responsive mt-3">
+        <table class="table">
             <thead>
                 <tr>
                     <th>🏫 Класс</th>
@@ -221,114 +223,114 @@ document.getElementById('notificationBtn').addEventListener('click', function ()
                 </tr>
             </thead>
             <tbody>
-            {% for grade in grades %}
-            <tr>
-                <td>{{ grade.school_class.name }}</td>
-                <td>{% if grade.student.first_name and grade.student.last_name %}
+                {% for grade in grades %}
+                <tr>
+                    <td>{{ grade.school_class.name }}</td>
+                    <td>
+                        {% if grade.student.first_name and grade.student.last_name %}
                             {{ grade.student.first_name }} {{ grade.student.last_name }}
                         {% else %}
                             {{ grade.student.username }}
-                        {% endif %}</td>
-
-                <td>{{ grade.subject }}</td>
-                <td><span class="grade grade-{{ grade.grade }}">{{ grade.grade }}</span></td>
-                {% if is_teacher %}
-                <td>
-                    <form method="POST" action="{{ url_for('delete_grade', grade_id=grade.id) }}">
-                        <button type="submit" class="btn btn-danger btn-sm">🗑️ Удалить</button>
-                    </form>
-                </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>{{ grade.subject }}</td>
+                    <td><span class="grade grade-{{ grade.grade }}">{{ grade.grade }}</span></td>
+                    {% if is_teacher %}
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_grade', grade_id=grade.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑️ Удалить</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
-
-        <!-- Форма добавления оценки -->
-        {% if is_teacher %}
-        <h3 class="mt-4">Добавить оценку</h3>
-        <form method="POST" action="{{ url_for('grades') }}">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">🏫 Класс:</label>
-                    <select id="classSelect" name="class_id" class="form-select" required>
-                        <option value="" disabled selected>Выберите класс</option>
-                        {% for cls in classes %}
-                            <option value="{{ cls.id }}">{{ cls.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">👨‍🎓 Ученик:</label>
-                    <select name="user_id" id="studentSelect" class="form-select" required>
-                        <option value="" disabled selected>Сначала выберите класс</option>
-                        {% for student in students %}
-                            <option value="{{ student.id }}">
-                                {% if student.first_name and student.last_name %}
-                                    {{ student.first_name }} {{ student.last_name }}
-                                {% else %}
-                                    {{ student.username }}
-                                {% endif %}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">📖 Предмет:</label>
-                    <input type="text" name="subject" id="subject-field" class="form-control" required
-                        {% if current_user.role == 'teacher' %} data-subject="{{ current_user.subject }}" {% endif %}>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">🏅 Оценка:</label>
-                    <input type="number" name="grade" class="form-control" min="1" max="5" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">📅 Дата:</label>
-                    <input type="date" name="date" class="form-control" required>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-custom mt-2">✅ Добавить</button>
-        </form>
-        {% endif %}
-
-        <script>
-            // Динамическое обновление списка учеников при выборе класса
-            document.getElementById('classSelect').addEventListener('change', function() {
-                var classId = this.value;
-        
-                if (!classId) {
-                    alert("Пожалуйста, выберите класс.");
-                    return;
-                }
-        
-                fetch('/get_students/' + classId)
-                    .then(response => response.json())
-                    .then(data => {
-                        var studentSelect = document.getElementById('studentSelect');
-                        studentSelect.innerHTML = ''; // Очистить список студентов
-                        var defaultOption = document.createElement('option');
-                        defaultOption.text = 'Выберите ученика';
-                        studentSelect.add(defaultOption);
-        
-                        data.students.forEach(function(student) {
-                            var option = document.createElement('option');
-                            option.value = student.id;
-                            option.text = student.username;
-                            studentSelect.add(option);
-                        });
-                    })
-                    .catch(error => console.error('Ошибка при загрузке студентов:', error));
-            });
-        </script>
-        
-        <a href="{{ url_for('dashboard') }}" class="btn btn-custom mt-3">⬅️ Назад</a>
     </div>
+
+    {% if is_teacher %}
+    <h3 class="mt-4">Добавить оценку</h3>
+    <form method="POST" action="{{ url_for('grades') }}">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">🏫 Класс:</label>
+                <select id="classSelect" name="class_id" class="form-select" required>
+                    <option value="" disabled selected>Выберите класс</option>
+                    {% for cls in classes %}
+                        <option value="{{ cls.id }}">{{ cls.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">👨‍🎓 Ученик:</label>
+                <select name="user_id" id="studentSelect" class="form-select" required>
+                    <option value="" disabled selected>Сначала выберите класс</option>
+                    {% for student in students %}
+                        <option value="{{ student.id }}">
+                            {% if student.first_name and student.last_name %}
+                                {{ student.first_name }} {{ student.last_name }}
+                            {% else %}
+                                {{ student.username }}
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">📖 Предмет:</label>
+                <input type="text" name="subject" id="subject-field" class="form-control" required
+                    {% if current_user.role == 'teacher' %} data-subject="{{ current_user.subject }}" {% endif %}>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">🏅 Оценка:</label>
+                <input type="number" name="grade" class="form-control" min="1" max="5" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">📅 Дата:</label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-custom mt-2">✅ Добавить</button>
+    </form>
+    {% endif %}
+
+    <script>
+        document.getElementById('classSelect').addEventListener('change', function() {
+            var classId = this.value;
+
+            if (!classId) {
+                alert("Пожалуйста, выберите класс.");
+                return;
+            }
+
+            fetch('/get_students/' + classId)
+                .then(response => response.json())
+                .then(data => {
+                    var studentSelect = document.getElementById('studentSelect');
+                    studentSelect.innerHTML = '';
+                    var defaultOption = document.createElement('option');
+                    defaultOption.text = 'Выберите ученика';
+                    studentSelect.add(defaultOption);
+
+                    data.students.forEach(function(student) {
+                        var option = document.createElement('option');
+                        option.value = student.id;
+                        option.text = student.username;
+                        studentSelect.add(option);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке студентов:', error));
+        });
+    </script>
+
+    <a href="{{ url_for('dashboard') }}" class="btn btn-custom mt-3">⬅️ Назад</a>
 </div>
+
 
 <script>
     // Переключение темы

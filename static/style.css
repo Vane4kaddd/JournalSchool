@@ -1,0 +1,205 @@
+/* Основной стиль */
+body {
+    background: #6a11cb;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    transition: background 0.5s ease;
+    padding: 1rem;
+    overflow-x: hidden;
+}
+
+/* Карточка */
+.card {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: black;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Иллюстрация */
+.illustration img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+/* Заголовок */
+h1 {
+    color: #6a11cb;
+    font-weight: bold;
+}
+
+/* Кастомная кнопка */
+.btn-custom {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background: linear-gradient(135deg, #5210a0, #1b63c8);
+    transform: scale(1.05);
+}
+
+/* Переключатель темы */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: background 0.3s ease;
+    z-index: 1002;
+}
+
+.theme-toggle:hover {
+    background: #ddd;
+}
+
+/* Темная тема */
+body.dark-mode {
+    background: #1e1e1e;
+    color: white;
+}
+
+.dark-mode .card {
+    background: #2a2a2a;
+    color: white;
+}
+
+.dark-mode h1 {
+    color: #a29bfe;
+}
+
+.dark-mode .btn-custom {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+
+.dark-mode .btn-custom:hover {
+    background: linear-gradient(135deg, #8e44ad, #5b2c6f);
+}
+
+.dark-mode .theme-toggle {
+    background: #222;
+    color: white;
+}
+
+.dark-mode .dropdown-menu {
+    background-color: #333;
+    color: white;
+}
+
+.dark-mode .dropdown-menu a {
+    color: white;
+}
+
+/* Гамбургер */
+.hamburger {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.bar {
+    width: 30px;
+    height: 4px;
+    background-color: white;
+    margin: 6px 0;
+    transition: 0.4s;
+    border-radius: 3px;
+}
+
+.hamburger.active .bar:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active .bar:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Боковое меню */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100vh;
+    width: 250px;
+    background: #2c3e50;
+    color: white;
+    padding: 60px 20px;
+    transition: 0.4s;
+    z-index: 1000;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.side-menu ul {
+    list-style: none;
+    padding: 0;
+}
+
+.side-menu ul li {
+    margin: 20px 0;
+}
+
+.side-menu ul li a {
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.side-menu ul li a:hover {
+    color: #a29bfe;
+}
+
+.side-menu.open {
+    left: 0;
+}
+
+.dark-mode .side-menu {
+    background: #111;
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+    .card {
+        padding: 20px;
+    }
+
+    .btn-custom, .btn {
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .side-menu ul li a {
+        font-size: 16px;
+    }
+}

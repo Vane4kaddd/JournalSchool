@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Выбор класса</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #6a11cb;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      transition: background 0.5s ease;
+    }
+
+    .wrapper {
+            display: flex;
+            justify-content: center;
+            padding-top: 100px; /* отступ от верхнего края, чтобы не перекрывать кнопки */
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      color: black;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    h1 {
+      color: #6a11cb;
+      font-weight: 600;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .class-tile {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 12px 0;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .class-tile:hover {
+      transform: scale(1.03);
+      background: linear-gradient(135deg, #5210a0, #1b63c8);
+    }
+
+    .btn-back {
+      display: block;
+      margin: 25px auto 0;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      width: 100%;
+    }
+    .btn-gray {
+        background: linear-gradient(135deg, #6c757d, #adb5bd);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 8px;
+        transition: 0.3s ease;
+    }
+    .btn-gray:hover {
+        background: linear-gradient(135deg, #5a6268, #9aa0a6);
+        transform: scale(1.05);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border: none;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        transition: background 0.3s ease;
+        z-index: 1030;
+    }
+
+    #notificationBtn {
+        z-index: 1030 !important;
+        right: 60px;
+    }
+
+    .modal {
+        z-index: 1055;
+    }
+
+    #themeToggle {
+      right: 15px;
+    }
+
+    .theme-toggle:hover,
+    #notificationBtn:hover {
+      background: #ddd;
+    }
+
+    .dark-mode {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .dark-mode .container {
+      background: #2a2a2a;
+      color: white;
+    }
+
+    .dark-mode h1 {
+      color: #a29bfe;
+    }
+
+    .dark-mode .class-tile {
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    }
+
+    .dark-mode .class-tile:hover {
+      background: linear-gradient(135deg, #4c3e8f, #6f82b8);
+    }
+
+    .dark-mode .btn-back {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .dark-mode .btn-back:hover {
+      background-color: #5a6268;
+    }
+
+    .dark-mode .theme-toggle,
+    .dark-mode #notificationBtn {
+      background: #222;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Переключатель темы -->
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<!-- Кнопка уведомлений -->
+<button class="theme-toggle me-3" id="notificationBtn">
+  🔔
+  {% if unread_count > 0 %}
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {{ unread_count }}
+  </span>
+  {% endif %}
+</button>
+
+<!-- Модальное окно уведомлений -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-white text-dark">
+      <div class="modal-header d-flex justify-content-between align-items-center w-100">
+        <h5 class="modal-title mb-0">Уведомления</h5>
+        <div class="d-flex align-items-center gap-2">
+          <form method="POST" action="{{ url_for('clear_notifications') }}" class="m-0">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Очистить</button>
+          </form>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        {% for note in notifications %}
+        <div class="alert alert-{{ 'secondary' if note.is_read else 'primary' }}">
+          <small class="text-muted">{{ note.timestamp.strftime('%d.%m.%Y %H:%M') }}</small><br>
+          {{ note.message }}
+        </div>
+        {% else %}
+        <p class="text-muted">Нет уведомлений.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('notificationBtn').addEventListener('click', function () {
+    new bootstrap.Modal(document.getElementById('notificationModal')).show();
+    fetch('/mark_notifications_read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+  });
+
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+
+  function applyTheme(theme) {
+    if (theme === "dark") {
+      body.classList.add("dark-mode");
+      themeToggle.textContent = "☀️";
+    } else {
+      body.classList.remove("dark-mode");
+      themeToggle.textContent = "🌙";
+    }
+  }
+
+  themeToggle.addEventListener("click", function () {
+    let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+    localStorage.setItem("theme", currentTheme);
+    applyTheme(currentTheme);
+  });
+
+  applyTheme(localStorage.getItem("theme") || "light");
+</script>
+
+<div class="wrapper">
+  <div class="container">
+    <h1>Выберите класс</h1>
+    <div class="row row-cols-3 g-3">
+      {% for class in classes %}
+      <div class="col">
+        <a href="{{ url_for('schedule', selected_class=class.id) }}">
+          <div class="class-tile">{{ class.name }}</div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-gray">⬅️ Назад</a>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Совершенно секретно</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #ff4e50;
+            background: linear-gradient(to right, #ff4e50, #f9d423);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Anton', sans-serif;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: bold;
+            color: #f9d423;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        input.form-control {
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            border: none;
+            padding: 15px;
+            width: 80%;
+            margin: 0 auto;
+            border-radius: 10px;
+            background-color: #333;
+            color: white;
+        }
+
+        input.form-control:focus {
+            border-color: #f9d423;
+            background-color: #222;
+            box-shadow: 0 0 10px rgba(249, 212, 35, 0.5);
+            outline: none;
+        }
+
+        .btn-submit {
+            background-color: #f9d423;
+            color: #222;
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+            background-color: #ff4e50;
+            color: white;
+        }
+
+        .warning-text {
+            color: #ff4e50;
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+
+        /* Анимация */
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .blink {
+            animation: blink 1s step-start infinite;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="blink">Совершенно секретно</h1>
+        <form method="POST">
+            <input type="password" name="school_password" class="form-control mb-3" placeholder="Введите код..." required>
+            <button class="btn-submit" >Доступ</button>
+        </form>
+        <p class="warning-text">⚠️ Этот код должен быть передан только авторизованным пользователям!</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

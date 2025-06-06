@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-white">👤 Мой профиль</h2>
+    <style>
+        .btn-custom {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 114, 255, 0.5);
+        }
+
+        .btn-outline-secondary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #dee2e6;
+            color: #000;
+            transform: scale(1.02);
+        }
+
+        /* Для кнопок внутри .modal-footer */
+        .modal-footer .btn {
+            min-width: 130px;
+        }
+        
+        /* Синяя кнопка: редактирование */
+        .btn-edit {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 114, 255, 0.5);
+        }
+
+        /* Зелёная кнопка: смена пароля */
+        .btn-password {
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(17, 153, 142, 0.3);
+        }
+
+        .btn-password:hover {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(17, 153, 142, 0.5);
+        }
+
+        /* Серая кнопка отмены */
+        .btn-outline-secondary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #dee2e6;
+            color: #000;
+            transform: scale(1.02);
+        }
+
+        .modal-footer .btn {
+            min-width: 130px;
+        }
+    </style>
+
+    <div class="card shadow-lg rounded-4 p-4 d-flex flex-md-row flex-column align-items-center justify-content-center gap-4">
+        <!-- Фото пользователя -->
+        <div class="text-center">
+            <img src="{{ url_for('static', filename='profile_pics/' ~ current_user.profile_picture) if current_user.profile_picture else 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}"
+             alt="User"
+             class="rounded-circle"
+             style="width: 100px; height: 100px; object-fit: cover;">
+        </div>
+
+        <!-- Информация о пользователе -->
+        <div class="text-md-start text-center">
+            <p class="fs-5 mb-2"><strong>Имя:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
+            <p class="fs-5 mb-2"><strong>Возраст:</strong> {{ current_user.age }}</p>
+            <p class="fs-5 mb-2"><strong>Роль:</strong> 
+                {% if current_user.role == 'admin' %}
+                    <strong>Администратор</strong>
+                {% elif current_user.role == 'teacher' %}
+                    <strong>Учитель</strong>
+                {% elif current_user.role == 'parent' %}
+                    <strong>Родитель</strong>
+                {% else %}
+                    <strong>Ученик</strong>
+                {% endif %}
+            </p>
+
+            {% if current_user.role == 'student' %}
+                <p class="fs-5 mb-2"><strong>Класс:</strong> {{ current_user.school_class.name }}</p>
+            {% elif current_user.role == 'teacher' %}
+                <p class="fs-5 mb-2"><strong>Предмет:</strong> {{ current_user.subject }}</p>
+            {% endif %}
+
+            <p class="fs-5 mb-2"><strong>Телефон:</strong> {{ current_user.phone }}</p>
+
+            <!-- Кнопки -->
+            <div class="d-flex flex-column gap-2 mt-3">
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-edit">✏️ Редактировать профиль</a>
+                <button type="button" class="btn btn-password" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                    🔒 Изменить пароль
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для смены пароля -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content shadow-lg rounded-4 p-4">
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="changePasswordModalLabel">🔒 Изменение пароля</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="password" name="current_password" class="form-control" id="currentPassword" placeholder="Старый пароль" required>
+                        <label for="currentPassword">Старый пароль</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" name="new_password" class="form-control" id="newPassword" placeholder="Новый пароль" required>
+                        <label for="newPassword">Новый пароль</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" name="confirm_password" class="form-control" id="confirmPassword" placeholder="Повторите новый пароль" required>
+                        <label for="confirmPassword">Повторите новый пароль</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-custom">Сменить пароль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

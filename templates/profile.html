@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<!-- Уведомления -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container" class="position-fixed top-0 start-50 translate-middle-x mt-3 z-3" style="z-index: 1055; width: auto;">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center shadow" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Скрипт автоматического скрытия -->
+    <script>
+      setTimeout(function () {
+        const alerts = document.querySelectorAll('#flash-container .alert');
+        alerts.forEach((alert) => {
+          // Удаляем класс "show", чтобы запустить исчезновение
+          alert.classList.remove('show');
+          alert.classList.add('hide');
+          // Удаляем элемент из DOM после завершения анимации Bootstrap (~150ms)
+          setTimeout(() => {
+            alert.remove();
+          }, 500);
+        });
+      }, 2000);
+    </script>
+  {% endif %}
+{% endwith %}
+
+
+<div class="container py-4">
+    <h2 class="mb-4 text-white">👤 Мой профиль</h2>
+    <style>
+        .btn-custom {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 114, 255, 0.5);
+        }
+
+        .btn-outline-secondary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #dee2e6;
+            color: #000;
+            transform: scale(1.02);
+        }
+
+        /* Для кнопок внутри .modal-footer */
+        .modal-footer .btn {
+            min-width: 130px;
+        }
+        
+        /* Синяя кнопка: редактирование */
+        .btn-edit {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 114, 255, 0.5);
+        }
+
+        /* Зелёная кнопка: смена пароля */
+        .btn-password {
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(17, 153, 142, 0.3);
+        }
+
+        .btn-password:hover {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(17, 153, 142, 0.5);
+        }
+
+        /* Серая кнопка отмены */
+        .btn-outline-secondary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #dee2e6;
+            color: #000;
+            transform: scale(1.02);
+        }
+
+        .modal-footer .btn {
+            min-width: 130px;
+        }
+        .adaptive-text {
+            color: #212529; /* по умолчанию тёмный */
+            transition: color 0.3s ease;
+        }
+
+            body.dark-mode .adaptive-text {
+            color: #f8f9fa; /* светлый при тёмной теме */
+        }
+    </style>
+
+    <div class="card shadow-lg rounded-4 p-4 d-flex flex-md-row flex-column align-items-center justify-content-center gap-4">
+        <!-- Фото пользователя -->
+        <div class="text-center">
+            <img src="{{ url_for('static', filename='profile_pics/' ~ current_user.profile_picture) if current_user.profile_picture else 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}"
+             alt="User"
+             class="rounded-circle"
+             style="width: 100px; height: 100px; object-fit: cover;">
+        </div>
+
+        <!-- Информация о пользователе -->
+        <div class="text-md-start text-center">
+            <p class="fs-5 mb-2"><strong>Имя:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
+            <p class="fs-5 mb-2">
+                <strong>Дата рождения:</strong>
+                {% if current_user.birth_date %}
+                    {{ current_user.birth_date.strftime('%d.%m.%Y') }} ({{ current_user.birth_date | calculate_age }})
+                {% else %}
+                    Не указано
+                {% endif %}
+            </p>
+
+
+            <p class="fs-5 mb-2"><strong>Роль:</strong> 
+                {% if current_user.role == 'admin' %}
+                    <strong>Администратор</strong>
+                {% elif current_user.role == 'teacher' %}
+                    <strong>Учитель</strong>
+                {% elif current_user.role == 'parent' %}
+                    <strong>Родитель</strong>
+                {% else %}
+                    <strong>Ученик</strong>
+                {% endif %}
+            </p>
+
+            {% if current_user.role == 'student' %}
+                <p class="fs-5 mb-2"><strong>Класс:</strong> {{ current_user.school_class.name }}</p>
+            {% elif current_user.role == 'teacher' %}
+                <p class="fs-5 mb-2"><strong>Предметы:</strong> 
+                    {% for subj in current_user.subjects_list %}
+                        {{ subj }}{% if not loop.last %}, {% endif %}
+                    {% else %}
+                        Нет назначенных предметов
+                    {% endfor %}
+                </p>
+            {% endif %}
+
+            <p class="fs-5 mb-2"><strong>Телефон:</strong> {{ current_user.phone }}</p>
+
+            <!-- Кнопки -->
+            <div class="d-flex flex-column gap-2 mt-3">
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-edit">✏️ Редактировать профиль</a>
+                <button type="button" class="btn btn-password" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                    🔒 Изменить пароль
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% if user.role == 'teacher' %}
+<div class="container py-4 mt-5">
+    <h2 class="mb-4 text-white d-flex justify-content-between align-items-center">
+        🏫 Классы
+        <button type="button" class="btn btn-edit btn-sm" data-bs-toggle="modal" data-bs-target="#editClassesModal">
+            Редактировать
+        </button>
+    </h2>
+    
+    <div class="card shadow-lg rounded-4 p-4 #fff">
+        <div id="classes-list" class="d-flex flex-wrap gap-2">
+            {% if teacher_class_ids %}
+                {% for class in all_classes %}
+                    {% if class.id in teacher_class_ids %}
+                        <div class="class-badge shadow-sm rounded-pill px-3 py-1 d-flex align-items-center">
+                            <span>{{ class.name }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="adaptive-text">Нет назначенных классов.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="editClassesModal" tabindex="-1" aria-labelledby="editClassesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4 p-4 bg-white text-dark">
+        <form method="POST" action="{{ url_for('update_teacher_classes') }}">
+            <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold" id="editClassesModalLabel">Классы</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            <p>Выберите классы, в которых вы преподаёте:</p>
+            <div class="list-group">
+                {% for class in all_classes %}
+                <label class="list-group-item d-flex align-items-center">
+                <input 
+                    class="form-check-input me-2" 
+                    type="checkbox" 
+                    name="classes" 
+                    value="{{ class.id }}" 
+                    {% if class.id in teacher_class_ids %} checked {% endif %}>
+                {{ class.name }}
+                </label>
+                {% endfor %}
+            </div>
+            </div>
+            <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-custom">Сохранить</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<style>
+.class-badge {
+    background: linear-gradient(135deg, #005f99, #0080ff);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 3px 6px rgba(0, 128, 255, 0.4);
+    user-select: none;
+    transition: transform 0.2s ease, filter 0.3s ease;
+    cursor: default;
+}
+
+.class-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 128, 255, 0.6);
+}
+
+/* Инверсия цвета при тёмной теме */
+body.dark-mode .class-badge {
+    background: invert(1) hue-rotate(180deg);
+}
+
+@media (max-width: 576px) {
+    #classes-list {
+        justify-content: center !important;
+    }
+    .class-badge {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+}
+</style>
+{% endif %}
+
+
+
+<!-- Модальное окно для смены пароля -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content shadow-lg rounded-4 p-4">
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="changePasswordModalLabel">🔒 Изменение пароля</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="password" name="current_password" class="form-control" id="currentPassword" placeholder="Старый пароль" required>
+                        <label for="currentPassword">Старый пароль</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" name="new_password" class="form-control" id="newPassword" placeholder="Новый пароль" required>
+                        <label for="newPassword">Новый пароль</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" name="confirm_password" class="form-control" id="confirmPassword" placeholder="Повторите новый пароль" required>
+                        <label for="confirmPassword">Повторите новый пароль</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-custom">Сменить пароль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

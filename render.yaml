@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: flask-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn journal:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+    autoDeploy: true
+    runtime: python
+    pythonVersion: 3.12.3

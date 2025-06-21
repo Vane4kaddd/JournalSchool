@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Расписание</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: #6a11cb;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            padding-top: 100px; /* отступ от верхнего края, чтобы не перекрывать кнопки */
+        }
+        .container {
+            width: 100%;
+            max-width: 800px; /* Увеличил максимальную ширину контейнера */
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: black;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        h1, h3 {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            margin: 5px;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+        .btn-danger {
+            background: #dc3545;
+            border-radius: 6px;
+            padding: 6px 12px;
+        }
+        .btn-danger:hover {
+            background: #b02a37;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border-radius: 6px;
+            padding: 8px 14px;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #6a11cb;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f3f3f3;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: 0.3s ease-in-out;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+        }
+        /* Темная тема */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: white;
+        }
+        .dark-mode .container {
+            background: #2a2a2a;
+            color: white;
+        }
+        .dark-mode h1, .dark-mode h3 {
+            color: #a29bfe;
+        }
+        .dark-mode table {
+            background: #333;
+            color: white;
+        }
+        .dark-mode th {
+            background-color: #6c5ce7;
+        }
+        .dark-mode tr:nth-child(even) {
+            background-color: #444;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background: #ddd;
+        }
+        .dark-mode .theme-toggle {
+            background: #222;
+            color: white;
+        }
+        .btn-green {
+            background: linear-gradient(135deg, #28a745, #5cd65c);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+        }
+        .btn-green:hover {
+            background: linear-gradient(135deg, #218838, #45c145);
+            transform: scale(1.05);
+        }
+
+        .btn-gray {
+            background: linear-gradient(135deg, #6c757d, #adb5bd);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+        }
+        .btn-gray:hover {
+            background: linear-gradient(135deg, #5a6268, #9aa0a6);
+            transform: scale(1.05);
+        }
+
+    </style>
+    
+</head>
+<body>
+<div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1100; min-width: 300px;">
+  <div id="flash-toast"
+       class="toast align-items-center text-white bg-success border-0 shadow"
+       role="alert"
+       aria-live="assertive"
+       aria-atomic="true"
+       data-bs-autohide="true"
+       data-bs-delay="2000">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message">
+        <!-- Сообщение подставится через JS -->
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+    </div>
+  </div>
+</div>
+
+<button class="theme-toggle" id="themeToggle">🌙</button>
+<button class="theme-toggle me-3" id="notificationBtn" style="right: 60px;">
+  🔔
+  {% if unread_count > 0 %}
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {{ unread_count }}
+  </span>
+  {% endif %}
+</button>
+<div class="modal fade" id="notificationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-white text-dark">
+      <div class="modal-header d-flex justify-content-between align-items-center w-100">
+        <h5 class="modal-title mb-0">Уведомления</h5>
+        <div class="d-flex align-items-center gap-2">
+            <form method="POST" action="{{ url_for('clear_notifications') }}" class="m-0">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Очистить</button>
+            </form>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        {% for note in notifications %}
+        <div class="alert alert-{{ 'secondary' if note.is_read else 'primary' }}">
+            <small class="text-muted">{{ note.timestamp.strftime('%d.%m.%Y %H:%M') }}</small><br>
+            {{ note.message }}
+        </div>
+        {% else %}
+        <p class="text-muted">Нет уведомлений.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('notificationBtn').addEventListener('click', function () {
+  new bootstrap.Modal(document.getElementById('notificationModal')).show();
+  fetch('/mark_notifications_read', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+});
+</script>
+
+<div class="wrapper">
+  <div class="container">
+    <h1 class="mb-4">📅 Расписание занятий</h1>
+    <div class="d-flex justify-content-center flex-wrap">
+        {% for day in days %}
+        <a href="{{ url_for('schedule', day=day, selected_class=selected_class_id) }}" class="btn btn-custom">{{ day }}</a>
+        {% endfor %}
+    </div>
+    <h3 class="mt-4">📌 Расписание на {{ selected_day }}</h3>
+    <div class="table-responsive mt-3">
+      <table class="table mt-3">
+        <thead>
+          <tr>
+            <th>⏰ Время</th>
+            <th>📖 Предмет</th>
+            {% if current_user.role != 'teacher' %}
+                <th>👨‍🏫 Учитель</th>
+            {% endif %}
+            {% if current_user.role != 'student' %}
+                <th>🏫 Класс</th>
+            {% endif %}
+            {% if current_user.role == 'admin' %}<th>⚙️ Действия</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for lesson in lessons %}
+          <tr>
+            <td>{{ lesson.time }}</td>
+            <td>{{ lesson.subject }}</td>
+            {% if current_user.role != 'teacher' %}
+              <td>
+                  {% if lesson.teacher.first_name and lesson.teacher.last_name %}
+                      {{ lesson.teacher.first_name }} {{ lesson.teacher.last_name }}
+                  {% else %}
+                      {{ lesson.teacher.username }}
+                  {% endif %}
+              </td>
+            {% endif %}
+            {% if current_user.role != 'student' %}
+              <td>{{ lesson.school_class.name }}</td>
+            {% endif %}
+
+            {% if current_user.role == 'admin' %}
+            <td>
+              <form method="POST" action="{{ url_for('schedule') }}" class="d-inline">
+                <input type="hidden" name="schedule_id" value="{{ lesson.id }}">
+                <input type="hidden" name="action" value="delete">
+                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+              </form>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not lessons %}
+    <div class="alert alert-info mt-3 text-center">Уроков на этот день пока нет.</div>
+    {% endif %}
+
+    {% if current_user.role == 'admin' %}
+    <h3 class="mt-4">📌 Добавить урок</h3>
+    <form method="POST" action="{{ url_for('schedule') }}">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">📅 День недели:</label>
+          <select name="day" class="form-select">
+            {% for day in days %}
+            <option value="{{ day }}">{{ day }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="class_id" class="form-label">🏫 Класс</label>
+            <select class="form-select" id="class_id" disabled>
+                {% for class in classes %}
+                <option value="{{ class.id }}" {% if class.id == selected_class_id %} selected {% endif %}>{{ class.name }}</option>
+                {% endfor %}
+            </select>
+            <!-- Скрытое поле, чтобы значение всё равно отправлялось -->
+            <input type="hidden" name="class_id" value="{{ selected_class_id }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="teacher-select">👨‍🏫 Учитель:</label>
+          <select name="teacher" id="teacher-select" class="form-select" required>
+            <option value="" disabled {% if not selected_teacher_id %}selected{% endif %}>Выберите учителя</option>
+            {% for teacher in teachers %}
+              <option value="{{ teacher.id }}" data-subjects='{{ teacher.subjects_list | tojson | safe }}'>
+                {% if teacher.first_name and teacher.last_name %}
+                  {{ teacher.first_name }} {{ teacher.last_name }}
+                {% else %}
+                  {{ teacher.username }}
+                {% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">📖 Предмет:</label>
+          <select name="subject" id="subject-field" class="form-select" required>
+              <option value="" disabled selected>Выберите предмет</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">⏰ Время:</label>
+          <input type="time" name="time" required class="form-control">
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+        <button type="submit" name="action" value="add" class="btn btn-green">✅ Добавить</button>
+        <a href="{{ url_for('class_select') }}" class="btn btn-gray mb-0">⬅️ Назад</a>
+    </div>
+    </form>
+    {% else %}
+    <div class="text-center mt-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-gray mt-3">⬅️ Назад</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+function applyTheme(theme) {
+  if (theme === "dark") {
+    body.classList.add("dark-mode");
+    themeToggle.textContent = "☀️";
+  } else {
+    body.classList.remove("dark-mode");
+    themeToggle.textContent = "🌙";
+  }
+}
+themeToggle.addEventListener("click", function() {
+  let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+  localStorage.setItem("theme", currentTheme);
+  applyTheme(currentTheme);
+});
+applyTheme(localStorage.getItem("theme") || "light");
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const teacherSelect = document.getElementById("teacher-select");
+  const subjectSelect = document.getElementById("subject-field");
+
+  function updateSubjects() {
+    const selectedOption = teacherSelect.options[teacherSelect.selectedIndex];
+    const subjectsJson = selectedOption?.getAttribute("data-subjects") || '[]';
+
+    let subjects;
+    try {
+      subjects = JSON.parse(subjectsJson);
+    } catch {
+      subjects = [];
+    }
+
+    subjectSelect.innerHTML = '';
+
+    if (subjects.length === 0) {
+      const option = document.createElement('option');
+      option.text = 'Предметы не указаны';
+      option.disabled = true;
+      option.selected = true;
+      subjectSelect.appendChild(option);
+      subjectSelect.disabled = true;
+    } else {
+      subjects.forEach(subj => {
+        const option = document.createElement('option');
+        option.value = subj;
+        option.text = subj;
+        subjectSelect.appendChild(option);
+      });
+      subjectSelect.disabled = false;
+    }
+  }
+
+  teacherSelect.addEventListener("change", updateSubjects);
+
+  if (teacherSelect.value) {
+    updateSubjects();
+  } else {
+    subjectSelect.disabled = true;
+  }
+});
+
+</script>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const toastEl = document.getElementById('flash-toast');
+        const toastBody = document.getElementById('toast-message');
+        const toast = new bootstrap.Toast(toastEl);
+
+        {% for category, message in messages %}
+          toastBody.textContent = {{ message|tojson }};
+          toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'bg-primary');
+
+          {% if category == 'success' %}
+              toastEl.classList.add('bg-success');
+          {% elif category == 'danger' %}
+              toastEl.classList.add('bg-danger');
+          {% elif category == 'warning' %}
+              toastEl.classList.add('bg-warning');
+          {% else %}
+              toastEl.classList.add('bg-primary');
+          {% endif %}
+
+          toast.show();
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
+{% endwith %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+</body>
+</html>

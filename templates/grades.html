@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Оценки 🏫</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #6a11cb;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            transition: background 0.5s ease;
+        }
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            padding-top: 100px; /* отступ от верхнего края, чтобы не перекрывать кнопки */
+        }
+
+        .container {
+            max-width: 900px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            color: black;
+            width: 100%;
+        }
+
+        
+        h1, h3 {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #6a11cb;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f3f3f3;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #28a745, #5cd65c);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(135deg, #218838, #45c145);
+            transform: scale(1.05);
+        }
+
+        .btn-gray {
+            background: linear-gradient(135deg, #6c757d, #adb5bd);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-gray:hover {
+            background: linear-gradient(135deg, #5a6268, #9aa0a6);
+            transform: scale(1.05);
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+        .btn-danger {
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #dc3545;
+            border: none;
+            transition: 0.3s ease-in-out;
+        }
+        .btn-danger:hover {
+            background: #b02a37;
+        }
+        .grade {
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: white;
+            display: inline-block;
+            min-width: 40px;
+        }
+        .grade-5 { background: #28a745; } /* 🟢 Зеленая */
+        .grade-4 { background: #ffc107; color: black; } /* 🟡 Желтая */
+        .grade-3 { background: #fd7e14; } /* 🟠 Оранжевая */
+        .grade-2, .grade-1 { background: #dc3545; } /* 🔴 Красная */
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background: #ddd;
+        }
+        /* Темная тема */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: white;
+        }
+        .dark-mode .container {
+            background: #2a2a2a;
+            color: white;
+        }
+        .dark-mode h1, .dark-mode h3 {
+            color: #a29bfe;
+        }
+        .dark-mode th {
+            background-color: #6c5ce7;
+        }
+        .dark-mode .btn-custom {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+        .dark-mode .btn-custom:hover {
+            background: linear-gradient(135deg, #8e44ad, #5b2c6f);
+        }
+        .dark-mode .theme-toggle {
+            background: #222;
+            color: white;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    
+        table {
+            min-width: 600px;
+        }
+
+        .btn-sm.same-size-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            min-width: 90px;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .btn-danger.btn-sm.same-size-btn {
+            background: linear-gradient(135deg, #dc3545, #ff6b6b);
+            color: white;
+            border: none;
+            transition: 0.3s ease;
+        }
+        .btn-danger.btn-sm.same-size-btn:hover {
+            background: linear-gradient(135deg, #b02a37, #ff4d4d);
+            transform: scale(1.05);
+        }
+
+        .btn-warning.btn-sm.same-size-btn {
+            background: linear-gradient(135deg, #ffc107, #fcd34d);
+            color: black;
+            border: none;
+            transition: 0.3s ease;
+        }
+        .btn-warning.btn-sm.same-size-btn:hover {
+            background: linear-gradient(135deg, #e0a800, #facc15);
+            transform: scale(1.05);
+        }
+
+        td .d-flex form,
+        td .d-flex button {
+            margin: 0;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+<div class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1100; min-width: 300px;">
+  <div id="flash-toast"
+       class="toast align-items-center text-white bg-success border-0 shadow"
+       role="alert"
+       aria-live="assertive"
+       aria-atomic="true"
+       data-bs-autohide="true"
+       data-bs-delay="2000">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message">
+        <!-- Сообщение появится здесь -->
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+    </div>
+  </div>
+</div>
+
+
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<!-- Кнопка уведомлений -->
+<button class="theme-toggle me-3" id="notificationBtn" style="right: 60px;">
+  🔔
+  {% if unread_count > 0 %}
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {{ unread_count }}
+  </span>
+  {% endif %}
+</button>
+
+<!-- Модальное окно уведомлений -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-white text-dark">
+      <div class="modal-header d-flex justify-content-between align-items-center w-100">
+        <h5 class="modal-title mb-0">Уведомления</h5>
+        <div class="d-flex align-items-center gap-2">
+            <form method="POST" action="{{ url_for('clear_notifications') }}" class="m-0">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Очистить</button>
+            </form>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+    </div>
+      <div class="modal-body">
+        {% for note in notifications %}
+        <div class="alert alert-{{ 'secondary' if note.is_read else 'primary' }}">
+            <small class="text-muted">{{ note.timestamp.strftime('%d.%m.%Y %H:%M') }}</small><br>
+            {{ note.message }}
+        </div>
+        {% else %}
+        <p class="text-muted">Нет уведомлений.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('notificationBtn').addEventListener('click', function () {
+  // Показ модального окна
+  new bootstrap.Modal(document.getElementById('notificationModal')).show();
+
+  // Отправка запроса на сервер, чтобы отметить уведомления прочитанными
+  fetch('/mark_notifications_read', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+});
+</script>
+<div class="wrapper">
+    <div class="container">
+        <h1 class="mb-4">📊 Оценки</h1>
+        <!-- Форма выбора даты -->
+        <form method="GET" action="{{ url_for('grades') }}" class="mb-3">
+            <label for="date" class="form-label">📅 Выберите дату:</label>
+            <input type="date" name="date" value="{{ selected_date }}" class="form-control" onchange="this.form.submit()">
+        </form>
+
+        <h3 class="mt-4">Оценки на {{ selected_date }}</h3>
+
+        <!-- Таблица оценок -->
+        <div class="table-responsive mt-3">
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% if current_user.role != 'student' %}
+                            <th>🏫 Класс</th>
+                            <th>👨‍🎓 Ученик</th>
+                        {% endif %}
+                        <th>📖 Предмет</th>
+                        <th>🏅 Оценка</th>
+                        {% if is_teacher %}
+                        <th>⚙️ Действия</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in grades %}
+                    <tr>
+                        {% if current_user.role != 'student' %}
+                            <td>{{ grade.school_class.name }}</td>
+                            <td>
+                                {% if grade.student.first_name and grade.student.last_name %}
+                                    {{ grade.student.first_name }} {{ grade.student.last_name }}
+                                {% else %}
+                                    {{ grade.student.username }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        <td>{{ grade.subject }}</td>
+                        <td><span class="grade grade-{{ grade.grade }}">{{ grade.grade }}</span></td>
+                        {% if is_teacher %}
+                            {% if grade.teacher_id == current_user.id %}
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <form method="POST" action="{{ url_for('delete_grade', grade_id=grade.id) }}">
+                                        <button type="submit" class="btn btn-danger btn-sm same-size-btn">Удалить</button>
+                                    </form>
+                                    <button type="button"
+                                            class="btn btn-warning btn-sm same-size-btn"
+                                            onclick="editGrade({{ grade.id }}, '{{ grade.class_id }}', '{{ grade.student.id }}', '{{ grade.subject }}', '{{ grade.grade }}', '{{ grade.date.strftime('%Y-%m-%d') }}')">
+                                        Изменить
+                                    </button>
+                                </div>
+                            </td>
+                            {% else %}
+                            <td class="text-muted">–</td>
+                            {% endif %}
+                        {% endif %}
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_teacher %}
+        <h3 class="mt-4">Добавить оценку</h3>
+        <form method="POST" action="{{ url_for('grades') }}">
+            <input type="hidden" name="grade_id" id="grade_id">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">🏫 Класс:</label>
+                        <select id="classSelect" name="class_id" class="form-select" required>
+                            <option value="" disabled selected>Выберите класс</option>
+                            {% for cls in classes %}
+                                <option value="{{ cls.id }}">{{ cls.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">👨‍🎓 Ученик:</label>
+                        <select name="user_id" id="studentSelect" class="form-select" required>
+                            <option value="" disabled selected>Сначала выберите класс</option>
+                            {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {% if student.first_name and student.last_name %}
+                                        {{ student.first_name }} {{ student.last_name }}
+                                    {% else %}
+                                        {{ student.username }}
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">📖 Предмет:</label>
+
+                    {% if current_user.role == 'teacher' %}
+                        <select name="subject" id="subject-field" class="form-select" required>
+                            <option value="" disabled selected>Выберите предмет</option>
+                            {% if current_user.subjects_list %}
+                                {% for subj in current_user.subjects_list %}
+                                    <option value="{{ subj }}">{{ subj }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="" disabled>Предметы не указаны</option>
+                            {% endif %}
+                        </select>
+                    {% else %}
+                        <input type="text" name="subject" id="subject-field" class="form-control" required>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">🏅 Оценка:</label>
+                    <input type="number" name="grade" class="form-control" min="1" max="5" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">📅 Дата:</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-3 mt-3 flex-wrap">
+                <button type="submit" class="btn btn-green">✅ Добавить</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-gray mb-0">⬅️ Назад</a>
+            </div>
+        </form>
+        {% endif %}
+
+        {% if not is_teacher %}
+        <div class="text-center mt-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-gray">⬅️ Назад</a>
+        </div>
+        {% endif %}
+
+        <script>
+            document.getElementById('classSelect').addEventListener('change', function() {
+                var classId = this.value;
+
+                if (!classId) {
+                    alert("Пожалуйста, выберите класс.");
+                    return;
+                }
+
+                fetch('/get_students/' + classId)
+                    .then(response => response.json())
+                    .then(data => {
+                        var studentSelect = document.getElementById('studentSelect');
+                        studentSelect.innerHTML = '';
+                        var defaultOption = document.createElement('option');
+                        defaultOption.text = 'Выберите ученика';
+                        studentSelect.add(defaultOption);
+
+                        data.students.forEach(function(student) {
+                            var option = document.createElement('option');
+                            option.value = student.id;
+                            option.text = student.username;
+                            studentSelect.add(option);
+                        });
+                    })
+                    .catch(error => console.error('Ошибка при загрузке студентов:', error));
+            });
+        </script>
+
+    </div>
+</div>
+
+<script>
+    // Переключение темы
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    function applyTheme(theme) {
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeToggle.textContent = "☀️";
+        } else {
+            body.classList.remove("dark-mode");
+            themeToggle.textContent = "🌙";
+        }
+    }
+
+    themeToggle.addEventListener("click", function() {
+        let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+        localStorage.setItem("theme", currentTheme);
+        applyTheme(currentTheme);
+    });
+
+    applyTheme(localStorage.getItem("theme") || "light");
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const subjectField = document.getElementById("subject-field");
+        if (subjectField) {
+            const subject = subjectField.dataset.subject;
+            if (subject && !subjectField.value) {
+                subjectField.value = subject;
+            }
+        }
+    });
+</script>
+
+<script>
+  function editGrade(id, classId, studentId, subject, grade, date) {
+    document.getElementById('grade_id').value = id;
+    document.querySelector('[name="class_id"]').value = classId;
+    document.querySelector('[name="user_id"]').value = studentId;
+    document.querySelector('[name="subject"]').value = subject;
+    document.querySelector('[name="grade"]').value = grade;
+    document.querySelector('[name="date"]').value = date;
+
+    const submitBtn = document.querySelector('[type="submit"].btn-green');
+    submitBtn.textContent = '💾 Сохранить';
+  }
+</script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const toastEl = document.getElementById('flash-toast');
+        const toastBody = document.getElementById('toast-message');
+        const toast = new bootstrap.Toast(toastEl);
+
+        {% for category, message in messages %}
+          toastBody.textContent = {{ message|tojson }};
+          if (toastEl.classList.contains('bg-success') || toastEl.classList.contains('bg-danger') || toastEl.classList.contains('bg-warning')) {
+              toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+          }
+          {% if category == 'success' %}
+              toastEl.classList.add('bg-success');
+          {% elif category == 'danger' %}
+              toastEl.classList.add('bg-danger');
+          {% elif category == 'warning' %}
+              toastEl.classList.add('bg-warning');
+          {% else %}
+              toastEl.classList.add('bg-primary');
+          {% endif %}
+          toast.show();
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
+{% endwith %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

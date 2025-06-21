@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👤 Личный кабинет</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #6a11cb;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            transition: background 0.5s ease;
+        }
+
+        .card {
+            width: 400px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: black;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        .illustration img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+
+        .dropdown-menu a {
+            font-size: 16px;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s ease;
+            z-index: 1002;
+        }
+
+        .theme-toggle:hover {
+            background: #ddd;
+        }
+
+        /* Темная тема */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: white;
+        }
+
+        .dark-mode .card {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .dark-mode h1 {
+            color: #a29bfe;
+        }
+
+        .dark-mode .btn-custom {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+
+        .dark-mode .btn-custom:hover {
+            background: linear-gradient(135deg, #8e44ad, #5b2c6f);
+        }
+
+        .dark-mode .theme-toggle {
+            background: #222;
+            color: white;
+        }
+
+        .dark-mode .dropdown-menu {
+            background-color: #333;
+            color: white;
+        }
+
+        .dark-mode .dropdown-menu a {
+            color: white;
+        }
+
+        /* Кастомный гамбургер */
+        .hamburger {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .bar {
+            width: 30px;
+            height: 4px;
+            background-color: white;
+            margin: 6px 0;
+            transition: 0.4s;
+            border-radius: 3px;
+        }
+
+        .hamburger.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            height: 100vh;
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 60px 20px;
+            transition: 0.4s;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .side-menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .side-menu ul li {
+            margin: 20px 0;
+        }
+
+        .side-menu ul li a {
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .side-menu ul li a:hover {
+            color: #a29bfe;
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .dark-mode .side-menu {
+            background: #111;
+        }
+        .btn-schedule {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-schedule:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #1abc9c, #3498db);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-admin:hover {
+            background: linear-gradient(135deg, #1abc9c, #3498db);
+            transform: scale(1.05);
+        }
+        .btn-grades {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-grades:hover {
+            background: linear-gradient(135deg, #009f7a, #00bcd4);
+            transform: scale(1.05);
+        }
+
+        .btn-homework {
+            background: linear-gradient(135deg, #fd7e14, #f39c12);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-homework:hover {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            transform: scale(1.05);
+        }
+
+        
+        /* Стиль модального окна */
+        .modal-content {
+            border-radius: 1.5rem;
+            background-color: var(--modal-bg-color, #ffffff);
+            color: var(--modal-text-color, #000000);
+            transition: all 0.3s ease;
+        }
+        /* Стиль мини-карточки ученика */
+        .mini-card {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Более глубокая тень */
+            cursor: pointer;
+            transition: all 0.3s ease-in-out; /* Плавное изменение */
+        }
+
+        .mini-card:hover {
+            background: #d1e7dd; /* Цвет фона при наведении */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Увеличенная тень */
+            transform: translateY(-5px); /* Легкий подъем карточки */
+        }
+
+        .mini-card h5 {
+            margin: 0;
+            font-size: 18px; /* Увеличиваем размер шрифта */
+            font-weight: bold; /* Сделать текст более заметным */
+        }
+
+        .mini-card p {
+            font-size: 14px;
+            color: #333; /* Более контрастный цвет текста */
+        }
+
+        /* Темная тема */
+        body.dark-mode .mini-card {
+            background: #333;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .mini-card:hover {
+            background: #444;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+<!-- Уведомления -->
+<!-- Уведомления -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container" class="position-fixed top-0 start-50 translate-middle-x mt-3 z-3" style="z-index: 1055; width: auto;">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center shadow" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Скрипт автоматического скрытия -->
+    <script>
+      setTimeout(function () {
+        const alerts = document.querySelectorAll('#flash-container .alert');
+        alerts.forEach((alert) => {
+          // Удаляем класс "show", чтобы запустить исчезновение
+          alert.classList.remove('show');
+          alert.classList.add('hide');
+          // Удаляем элемент из DOM после завершения анимации Bootstrap (~150ms)
+          setTimeout(() => {
+            alert.remove();
+          }, 500);
+        });
+      }, 2000);
+    </script>
+  {% endif %}
+{% endwith %}
+
+
+<!-- Гамбургер -->
+<div class="hamburger" id="hamburger">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+</div>
+
+<!-- Боковое меню -->
+<div class="side-menu" id="sideMenu">
+    <ul>
+        <li><a href="{{ url_for('profile') }}">👤 Профиль</a></li>
+        {% if current_user.role == 'parent' %}
+            <li><a href="{{ url_for('dashboard') }}">🏠 Главная</a></li>
+        {% else %}
+            <li><a href="{{ url_for('dashboard') }}">📚 Журнал</a></li>
+        {% endif %}
+        {% if current_user.role != 'teacher' and current_user.role != 'parent' and current_user.role != 'admin' %}
+            <li><a href="{{ url_for('grades_report') }}">📈 График оценок</a></li>
+        {% endif %}
+        {% if current_user.role == 'admin' %}
+          <!-- Кнопка для открытия модального окна удаление пользователя -->
+          <li><a href="#" data-bs-toggle="modal" data-bs-target="#deleteChildModal">➕ Удалить пользователя</a></li>
+        {% endif %}
+        {% if current_user.role == 'parent' %}
+            <!-- Кнопка для открытия модального окна привязки ребёнка -->
+            <li><a href="#" data-bs-toggle="modal" data-bs-target="#addChildModal">➕ Добавить ребёнка</a></li>
+        {% endif %}
+        <li><hr></li>
+        <li><a class="text-danger" href="{{ url_for('logout') }}">🚪 Выйти</a></li>
+    </ul>
+</div>
+
+<!-- Модальное окно для привязки ребёнка -->
+<div class="modal fade" id="addChildModal" tabindex="-1" aria-labelledby="addChildModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChildModalLabel">Добавить ребёнка</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Стандартная форма с POST методом -->
+            <form method="POST" action="{{ url_for('bind_child') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Имя пользователя ученика</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль ученика</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Добавить ребёнка</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления пользователя -->
+<div class="modal fade" id="deleteChildModal" tabindex="-1" aria-labelledby="deleteChildModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteChildModalLabel">Удалить пользователя</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form method="POST" action="{{ url_for('delete_user') }}">
+              <div class="modal-body">
+                  <div class="mb-3">
+                      <label for="username" class="form-label">Имя пользователя</label>
+                      <input type="text" class="form-control" id="username" name="username" required>
+                  </div>
+                  <div class="mb-3">
+                      <label for="password" class="form-label">Пароль пользователя</label>
+                      <input type="password" class="form-control" id="password" name="password" required>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                  <button type="submit" class="btn btn-danger">Удалить пользователя</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<!-- Переключатель темы -->
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<!-- Кнопка уведомлений -->
+<button class="theme-toggle me-3" id="notificationBtn" style="right: 60px;">
+  🔔
+  {% if unread_count > 0 %}
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {{ unread_count }}
+  </span>
+  {% endif %}
+</button>
+
+<!-- Модальное окно уведомлений -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-white text-dark">
+      <div class="modal-header d-flex justify-content-between align-items-center w-100">
+        <h5 class="modal-title mb-0">Уведомления</h5>
+        <div class="d-flex align-items-center gap-2">
+            <form method="POST" action="{{ url_for('clear_notifications') }}" class="m-0">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Очистить</button>
+            </form>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+    </div>
+      <div class="modal-body">
+        {% for note in notifications %}
+        <div class="alert alert-{{ 'secondary' if note.is_read else 'primary' }}">
+            <small class="text-muted">{{ note.timestamp.strftime('%d.%m.%Y %H:%M') }}</small><br>
+            {{ note.message }}
+        </div>
+        {% else %}
+        <p class="text-muted">Нет уведомлений.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('notificationBtn').addEventListener('click', function () {
+  // Показ модального окна
+  new bootstrap.Modal(document.getElementById('notificationModal')).show();
+
+  // Отправка запроса на сервер, чтобы отметить уведомления прочитанными
+  fetch('/mark_notifications_read', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+});
+</script>
+
+<!-- Карточка профиля -->
+<div class="card">
+    <div class="illustration text-center">
+        <img src="{{ url_for('static', filename='profile_pics/' ~ current_user.profile_picture) if current_user.profile_picture else 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}"
+             alt="User"
+             class="rounded-circle"
+             style="width: 100px; height: 100px; object-fit: cover;">
+    </div>
+    <h1>👋 Привет,
+        {% if current_user.first_name and current_user.last_name %}
+            {{ current_user.first_name }} {{ current_user.last_name }}
+        {% else %}
+            {{ current_user.username }}
+        {% endif %}
+    </h1>
+    <p>Вы вошли как 
+        <strong>
+            {% if current_user.role == 'admin' %}
+                Администратор
+            {% elif current_user.role == 'teacher' %}
+                Учитель
+            {% elif current_user.role == 'parent' %}
+                Родитель
+            {% else %}
+                Ученик
+            {% endif %}
+        </strong>
+    </p>
+
+    <div class="d-grid gap-3 mb-3">
+        {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('class_select') }}" class="btn btn-schedule">📅 Расписание</a>
+            <a href="{{ url_for('manage_password_requests') }}" class="btn btn-admin">🔄 Управление заявками</a>
+        {% elif current_user.role == 'student' or current_user.role == 'teacher' %}
+            <a href="{{ url_for('schedule') }}" class="btn btn-schedule">📅 Расписание</a>
+        {% endif %}
+    
+        {% if current_user.role == 'student' %}
+            <a href="{{ url_for('grades') }}" class="btn btn-grades">📊 Оценки</a>
+        {% elif current_user.role == 'teacher' %}
+            <a href="{{ url_for('grades') }}" class="btn btn-grades">📝 Выставить оценки</a>
+        {% endif %}
+    
+        {% if current_user.role in ['student', 'teacher'] %}
+            <a href="{{ url_for('homework') }}" class="btn btn-homework">📖 Домашние задания</a>
+        {% endif %}
+        
+        {% if current_user.role == 'parent' %}
+            {% if current_user.children|length == 0 %}
+                <div class="alert alert-info mt-2 mb-0">
+                    Для просмотра данных сначала добавьте ребёнка в меню.
+                </div>
+            {% else %}
+                {% for child in current_user.children %}
+                    <!-- Мини-карточка ученика -->
+                    <div class="mini-card" onclick="window.location.href='{{ url_for('switch_to_student', student_id=child.id) }}'">
+                        <h5>
+                            {% if child.first_name and child.last_name %}
+                                {{ child.first_name }} {{ child.last_name }}
+                            {% else %}
+                                {{ child.username }}
+                            {% endif %}
+                        </h5>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+        {% if session.get('parent_id') and current_user.role == 'student' %}
+            <a href="{{ url_for('switch_back_to_parent') }}" class="btn btn-warning mb-3">⬅️ Назад</a>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const hamburgerBars = document.querySelectorAll('.hamburger .bar');
+
+    function applyTheme(theme) {
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeToggle.textContent = "☀️";
+        } else {
+            body.classList.remove("dark-mode");
+            themeToggle.textContent = "🌙";
+        }
+        updateHamburgerColor();
+    }
+
+    function updateHamburgerColor() {
+        if (body.classList.contains("dark-mode")) {
+            hamburgerBars.forEach(bar => {
+                bar.style.backgroundColor = 'white';
+            });
+        } else {
+            hamburgerBars.forEach(bar => {
+                bar.style.backgroundColor = 'white';
+            });
+        }
+    }
+
+    themeToggle.addEventListener("click", function () {
+        let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+        localStorage.setItem("theme", currentTheme);
+        applyTheme(currentTheme);
+    });
+
+    const savedTheme = localStorage.getItem("theme") || "light";
+    applyTheme(savedTheme);
+    const notificationBtn = document.getElementById('notificationBtn');
+
+    const hamburger = document.getElementById("hamburger");
+    const sideMenu = document.getElementById("sideMenu");
+
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        sideMenu.classList.toggle("open");
+        updateHamburgerColor();
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Обработка формы добавления ребёнка с использованием FormData
+    document.getElementById('addChildForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Предотвращаем стандартную отправку формы
+
+        const form = event.target;
+        const formData = new FormData(form);  // Получаем данные формы
+
+        fetch('/bind_child', {
+            method: 'POST',
+            body: formData  // Отправляем данные формы
+        })
+        .then(response => response.text())  // Ожидаем текстовый ответ
+        .then(data => {
+            // Проверяем ответ сервера, если есть flash-сообщение, отображаем его
+            if (data.includes('Ребёнок успешно привязан')) {
+                // Закрытие модального окна после успешной привязки ребёнка
+                $('#addChildModal').modal('hide');
+                alert('Ребёнок успешно привязан');
+            } else {
+                alert('Ошибка при привязке ребёнка');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при отправке данных');
+        });
+    });
+</script>
+
+</body>
+</html>

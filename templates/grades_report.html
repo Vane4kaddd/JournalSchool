@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Отчёт оценок{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-center text-white">📈 График оценок</h2>
+    <div id="export-section" class="card shadow-lg rounded-4 p-4">
+        <h5 class="mb-3 text-center">📊 {{ period_text if period_text else 'График за всё время' }}</h5>
+
+        <style>
+            .btn-custom {
+                font-size: 0.85rem;
+                padding: 6px 12px;
+                border: none;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #4e54c8, #8f94fb);
+                color: white;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(78, 84, 200, 0.3);
+            }
+
+            .btn-custom:hover {
+                background: linear-gradient(135deg, #6c70f0, #a1a5ff);
+                transform: scale(1.03);
+                box-shadow: 0 6px 12px rgba(78, 84, 200, 0.5);
+            }
+
+            .chart-container {
+                width: 100%;
+                height: 450px;
+                overflow-x: auto;
+            }
+        </style>
+
+        <!-- Форма фильтрации -->
+        <form method="POST" class="mb-4" id="filter-form">
+            <div class="row gx-2 gy-2 align-items-end">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <label for="start_date" class="form-label">От:</label>
+                    <input type="date" name="start_date" id="start_date"
+                           class="form-control form-control-sm" value="{{ start_date }}">
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <label for="end_date" class="form-label">До:</label>
+                    <input type="date" name="end_date" id="end_date"
+                           class="form-control form-control-sm" value="{{ end_date }}">
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-6">
+                    <label class="form-label d-none d-md-block invisible">.</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-custom btn-sm flex-fill">Применить</button>
+                        <button type="button" class="btn btn-custom btn-sm flex-fill" onclick="resetChart()">Сброс</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- График -->
+        <div class="chart-container mb-4">
+            <canvas id="gradesChart"></canvas>
+        </div>
+
+        <!-- Информация -->
+        <div class="mt-4">
+            <h5 class="text-center">Информация по графику</h5>
+            <p class="mt-3 text-center">Здесь отображена средняя оценка по каждому предмету</p>
+            <ul class="list-group">
+                {% if subject_averages %}
+                    {% for subject, avg in subject_averages.items() %}
+                        <li class="list-group-item">
+                            <strong>{{ subject }}:</strong> Средняя оценка - {{ avg }}
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">Нет доступных данных для отображения.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Кнопка PDF -->
+        <div class="text-center mt-3">
+            <button class="btn btn-custom" id="download-pdf">Экспортировать PDF</button>
+        </div>
+    </div>
+</div>
+
+<!-- JSON для графика -->
+<script id="subject-data" type="application/json">
+    {{ subject_averages | tojson }}
+</script>
+
+<!-- Скрипты -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    const rawData = JSON.parse(document.getElementById('subject-data').textContent);
+    const ctx = document.getElementById('gradesChart').getContext('2d');
+    const subjects = Object.keys(rawData);
+    const averages = Object.values(rawData);
+
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: 'Средняя оценка',
+                data: averages,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: { stepSize: 1 },
+                    title: { display: true, text: 'Оценка' }
+                },
+                x: {
+                    title: { display: true, text: 'Предметы' }
+                }
+            }
+        }
+    });
+
+    // PDF экспорт (оставляем без изменений)
+    document.getElementById('download-pdf').addEventListener('click', async function () {
+        const container = document.getElementById('export-section');
+        const canvas = await html2canvas(container, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/jpeg');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = pageWidth - 20;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+        if (imgHeight < pageHeight) {
+            pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+        } else {
+            const totalPages = Math.ceil(imgHeight / pageHeight);
+            for (let i = 0; i < totalPages; i++) {
+                const srcY = (canvas.height / totalPages) * i;
+                const pageCanvas = document.createElement('canvas');
+                const context = pageCanvas.getContext('2d');
+                pageCanvas.width = canvas.width;
+                pageCanvas.height = canvas.height / totalPages;
+                context.drawImage(canvas, 0, srcY, canvas.width, canvas.height / totalPages,
+                    0, 0, canvas.width, canvas.height / totalPages);
+                const pageData = pageCanvas.toDataURL('image/jpeg');
+                if (i > 0) pdf.addPage();
+                pdf.addImage(pageData, 'JPEG', 10, 10, imgWidth, pageHeight - 20);
+            }
+        }
+
+        pdf.save('grades_report.pdf');
+    });
+
+    function resetChart() {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+        document.getElementById('filter-form').submit();
+    }
+
+</script>
+
+{% endblock %}

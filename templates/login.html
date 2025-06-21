@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔑 Вход в систему</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #6a11cb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        .card {
+            width: 380px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: black;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        .illustration img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5210a0, #1b63c8);
+            transform: scale(1.05);
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background: #ddd;
+        }
+
+        /* Темная тема */
+        body.dark-mode {
+            background: #1e1e1e;
+            color: white;
+        }
+        .dark-mode .card {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+        }
+        .dark-mode h2 {
+            color: #a29bfe;
+        }
+        .dark-mode .btn-custom {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+        .dark-mode .btn-custom:hover {
+            background: linear-gradient(135deg, #6c5ce7, #4b4b9e);
+        }
+        .dark-mode .theme-toggle {
+            background: #222;
+            color: white;
+        }
+        .btn-register {
+            display: inline-block;
+            padding: 6px 14px;
+            font-size: 15px;
+            color: #fff;
+            background: linear-gradient(135deg, #bc4e9c, #f80759); /* синий градиент */
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        .btn-register:hover {
+            background: linear-gradient(135deg, #a63d8e, #d70040);
+            transform: scale(1.05);
+            color: #fff;
+        }
+        .btn-reset {
+            display: inline-block;
+            padding: 6px 14px;
+            font-size: 15px;
+            color: #fff;
+            background: linear-gradient(135deg, #ff6a00, #ee0979); /* оранжево-розовый */
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #cc0055, #b3003b);
+            transform: scale(1.05);
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">🌙</button>
+
+<div class="card">
+    <style>
+        .illustration img {
+            transition: filter 0.3s ease;
+        }
+        body.dark-mode .illustration img {
+            filter: invert(1);
+        }
+    </style>
+
+    <div class="illustration">
+        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="Login" />
+    </div>
+
+    <h2>🔑 Вход</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container text-start">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mt-2" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">Логин</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Пароль</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-custom">Войти</button>
+    </form>
+    <p class="text-center mt-3">
+        Нет аккаунта?
+        <a href="{{ url_for('register') }}" class="btn-register">Зарегистрироваться</a>
+    </p>
+    <p class="text-center mt-2">
+        <a href="{{ url_for('reset_password') }}" class="btn-reset">🔄 Забыли пароль?</a>
+    </p>
+
+   
+</div>
+
+<script>
+    // Переключение темы
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    function applyTheme(theme) {
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            themeToggle.textContent = "☀️";
+        } else {
+            body.classList.remove("dark-mode");
+            themeToggle.textContent = "🌙";
+        }
+    }
+
+    themeToggle.addEventListener("click", function() {
+        let currentTheme = body.classList.contains("dark-mode") ? "light" : "dark";
+        localStorage.setItem("theme", currentTheme);
+        applyTheme(currentTheme);
+    });
+
+    applyTheme(localStorage.getItem("theme") || "light");
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -223,13 +223,6 @@ def reset_password():
 def home():
     return render_template('home.html')
 
-
-@app.before_request
-def require_school_password():
-    allowed_routes = ['danger', 'static']
-    if not session.get('school_authenticated') and request.endpoint not in allowed_routes:
-        return redirect(url_for('danger'))
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     classes = SchoolClass.query.all()

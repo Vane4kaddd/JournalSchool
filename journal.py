@@ -223,16 +223,6 @@ def reset_password():
 def home():
     return render_template('home.html')
 
-@app.route('/danger', methods=['GET', 'POST'])
-def danger():
-    if request.method == 'POST':
-        password = request.form.get('school_password')
-        if password == SCHOOL_PASSWORD:
-            session['school_authenticated'] = True
-            return redirect(url_for('home')) 
-        else:
-            flash('Неверный пароль школы', 'danger')
-    return render_template('danger.html')
 
 @app.before_request
 def require_school_password():
